@@ -1,4 +1,4 @@
-from .config import config
+# from .settings.import config
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_community.llms import Ollama
@@ -8,10 +8,7 @@ from langchain.callbacks import AsyncIteratorCallbackHandler
 
 
 class Gpt:
-    def __init__(self) -> None:
-        print(config.ollama_model)
-        print(f"{config.ollama_host}:{config.ollama_port}")
-
+    def __init__(self, settings) -> None:
         # Initialize embedding
         embedding = HuggingFaceEmbeddings(cache_folder="./modal")
         # Initialize chroma persistentClient
@@ -32,8 +29,8 @@ class Gpt:
 
         # Define llm
         llm = Ollama(
-            model=config.ollama_model,
-            base_url=f"{config.ollama_host}:{config.ollama_port}",
+            model=settings.ollama_model,
+            base_url=f"{settings.ollama_host}:{settings.ollama_port}",
             timeout=3000,
             temperature=0,
             callbacks=[self.callback],

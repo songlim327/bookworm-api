@@ -1,5 +1,7 @@
 import asyncio
-from app.gpt import Gpt
+from .gpt import Gpt
+from .config import Settings
+from functools import lru_cache
 from urllib.parse import quote
 from fastapi import FastAPI
 from typing import AsyncIterable, Awaitable
@@ -8,8 +10,14 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
+# Ensure settings object is created once and return the same object each time this func is called
+@lru_cache
+def get_settings():
+    return Settings()
+
 async def wrap_chain(message: str) -> AsyncIterable[str]:
-    gpt = Gpt()
+    # Initialize gpt instance and pass Settings in
+    gpt = Gpt(get_settings())
     async def wrap_done(fn: Awaitable, event: asyncio.Event):
         """Wrap an awaitable with a event to signal when it's done or an exception is raised"""
         try:
@@ -23,21 +31,18 @@ async def wrap_chain(message: str) -> AsyncIterable[str]:
     # Begin a task that runs in the background thread
     task = asyncio.create_task(wrap_done(gpt.query(message), gpt.callback.done))
 
-    print("reach this stage")
     async for token in gpt.callback.aiter():
         # Use SSE to stream the response
         print(f"{token}", file=open('output.txt', 'a'))
         yield f"data: {token}\n\n"
-        # yield f"{token}\n"
 
-    await task
-    # res = await task
-    # for d in res["source_documents"]:
-        # yield f"data: {d.metadata}\n\n"
-        # print(d.metadata)
-        # print("https://wiki.sql.com.my/wiki/"+quote(d.metadata["source"]))
-        # yield f"data: https://wiki.sql.com.my/wiki/{quote(d.metadata['source'])}\n\n"
-    # print(f"final result: {res}")
+    # await task
+    res = await task
+    source_docs_set = set([doc.metadata["source"] for doc in res["source_documents"]])
+
+    yield "data: Sources:\n\n"
+    for src in source_docs_set:
+        yield f"data: https://wiki.sql.com.my/wiki/{quote(src)}\n\n"
 
 async def generate_sample_data():
     for i in range(10):
