@@ -2,3 +2,6 @@ __pycache__
 chroma
 modal
 .env
+
+# log files
+output.txt
