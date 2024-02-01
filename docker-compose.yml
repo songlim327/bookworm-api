@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  bookworm-api:
+    image: bookworm-api:latest
+    ports:
+      - 8000:8000
+    restart: always
+    environment:
+      - OLLAMA_MODEL=llama2:vram15
+      - OLLAMA_HOST=http://192.168.0.80
+      - OLLAMA_PORT=11434
