@@ -1,4 +1,5 @@
 __pycache__
+.devcontainer
 *.pyc
 *.pyo
 *.egg-info
