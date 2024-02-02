@@ -1,9 +1,10 @@
-# from .settings.import config
+import chromadb
+from chromadb.config import Settings
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_community.llms import Ollama
 from langchain_core.prompts import PromptTemplate
-from langchain.chains import RetrievalQA, RetrievalQAWithSourcesChain
+from langchain.chains import RetrievalQA
 from langchain.callbacks import AsyncIteratorCallbackHandler
 
 
@@ -11,11 +12,22 @@ class Gpt:
     def __init__(self, settings) -> None:
         # Initialize embedding
         embedding = HuggingFaceEmbeddings(cache_folder="./modal")
-        # Initialize chroma persistentClient
+
+        # Initialize chroma client object
+        client = chromadb.HttpClient(
+            host={settings.chroma_host},
+            port={settings.chroma_port},
+            settings=Settings(
+                chroma_client_auth_provider="chromadb.auth.token.TokenAuthClientProvider",
+                chroma_client_auth_credentials={settings.chroma_auth_credentials},
+            ),
+        )
+
+        # Initialize Langchain Chroma object as data source
         db = Chroma(
+            client=client,
             collection_name="sql-wiki",
             embedding_function=embedding,
-            persist_directory="./chroma",
         )
 
         # Define vector store db as retriever
