@@ -15,11 +15,11 @@ class Gpt:
 
         # Initialize chroma client object
         client = chromadb.HttpClient(
-            host={settings.chroma_host},
-            port={settings.chroma_port},
+            host=settings.chroma_host,
+            port=settings.chroma_port,
             settings=Settings(
                 chroma_client_auth_provider="chromadb.auth.token.TokenAuthClientProvider",
-                chroma_client_auth_credentials={settings.chroma_auth_credentials},
+                chroma_client_auth_credentials=settings.chroma_auth_credentials,
             ),
         )
 
