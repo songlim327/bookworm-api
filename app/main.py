@@ -42,7 +42,7 @@ async def wrap_chain(message: str) -> AsyncIterable[str]:
 
     yield "data: Sources:\n\n"
     for src in source_docs_set:
-        yield f"data: https://wiki.sql.com.my/wiki/{quote(src)}\n\n"
+        yield f"data: {src}\n\n"
 
 async def generate_sample_data():
     for i in range(10):
